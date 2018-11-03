@@ -14,6 +14,8 @@ namespace Atmosphere_Rebrander
         static DirectoryInfo tempPath = new DirectoryInfo(Path.Combine(Path.GetTempPath(), "Atmosphere-Rebrander"));
         static DirectoryInfo atmosphereGit = new DirectoryInfo(Path.Combine(tempPath.FullName, "Atmosphere"));
         static DirectoryInfo boostsub = new DirectoryInfo(Path.Combine(atmosphereGit.FullName, "common", "include", "boost"));
+        static FileInfo gitbootlogo = new FileInfo(Path.Combine(atmosphereGit.FullName, "fusee", "fusee-secondary", "src", "splash_screen.bmp"));
+        public FileInfo newbootlogo;
 
         public Form1()
         {
@@ -22,7 +24,7 @@ namespace Atmosphere_Rebrander
 
         private void Button1_Click(object sender, EventArgs e)
         {
-            if (!string.IsNullOrWhiteSpace(textBox1.Text) && !string.IsNullOrWhiteSpace(textBox2.Text))
+            if (!string.IsNullOrWhiteSpace(textBox1.Text) && !string.IsNullOrWhiteSpace(textBox2.Text) && newbootlogo != null)
             { 
             cte_button.Enabled = false;
             tempPath.Create();
@@ -42,6 +44,9 @@ namespace Atmosphere_Rebrander
                 //work around for submodule
                 Repository.Clone("https://github.com/Atmosphere-NX/ext-boost.git", boostsub.FullName);
 
+                gitbootlogo.Delete();
+                File.Copy(newbootlogo.FullName, gitbootlogo.FullName);
+
                 System.Collections.Generic.IEnumerable<string> repo = Directory.EnumerateFiles(atmosphereGit.FullName, "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".cpp") || s.EndsWith(".h") || s.EndsWith(".c") || s.EndsWith(".hpp"));
                 FileInfo[] makefiles = atmosphereGit.GetFiles("Makefile", SearchOption.AllDirectories);
                 FileInfo readme = new FileInfo(Path.Combine(atmosphereGit.FullName, "README.md"));
@@ -58,7 +63,7 @@ namespace Atmosphere_Rebrander
                         filetext = filetext.Replace("Atmosphere", textBox1.Text);
                         filetext = filetext.Replace("ATMOSPHERE", upperName);
                         filetext = filetext.Replace("AMS", textBox2.Text);
-                        filetext = filetext.Replace("Atmosphère ", textBox1.Text);
+                        filetext = filetext.Replace("Atmosphère ", $"{textBox1.Text} ");
                         filetext += "\r\n//Modified by Atmosphere-Rebrander.";
                         File.WriteAllText(file, filetext);
                     }      
@@ -76,7 +81,7 @@ namespace Atmosphere_Rebrander
                         filetext = filetext.Replace("Atmosphere", textBox1.Text);
                         filetext = filetext.Replace("ATMOSPHERE", upperName);
                         filetext = filetext.Replace("AMS", textBox2.Text);
-                        filetext = filetext.Replace("Atmosphère ", textBox1.Text);
+                        filetext = filetext.Replace("Atmosphère ", $"{textBox1.Text} ");
                         File.WriteAllText(file.FullName, filetext);
                     }
                 }
@@ -112,5 +117,14 @@ namespace Atmosphere_Rebrander
             }
         }
 
+        private void Button1_Click_1(object sender, EventArgs e)
+        {
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                newbootlogo = new FileInfo(openFileDialog1.FileName);
+                button1.Text = "Selected";
+            }
+        }
+        
     }
 }
