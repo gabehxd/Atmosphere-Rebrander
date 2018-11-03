@@ -92,6 +92,7 @@ namespace Atmosphere_Rebrander
                 saveFileDialog1.ShowDialog();
                 if (saveFileDialog1.FileName != "")
                 {
+                    FileInfo save = new FileInfo(saveFileDialog1.FileName);
                     DirectoryInfo gitFolder = new DirectoryInfo(Path.Combine(atmosphereGit.FullName, ".git"));
                     FileInfo[] Git = gitFolder.GetFiles("*.*", SearchOption.AllDirectories);
                     foreach (FileInfo file in Git)
@@ -99,7 +100,8 @@ namespace Atmosphere_Rebrander
                       File.SetAttributes(file.FullName, FileAttributes.Normal);
                     }
                     gitFolder.Delete(true);
-                    ZipFile.CreateFromDirectory(atmosphereGit.FullName, saveFileDialog1.FileName);
+                    if (save.Exists) save.Delete();
+                    ZipFile.CreateFromDirectory(atmosphereGit.FullName, save.FullName);
                 }
                 MessageBox.Show("Done!");
                 cte_button.Enabled = true;
