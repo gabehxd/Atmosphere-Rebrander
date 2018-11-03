@@ -42,7 +42,7 @@ namespace Atmosphere_Rebrander
                  
                 Repository.Clone("https://github.com/Atmosphere-NX/Atmosphere.git", atmosphereGit.FullName);
                 //work around for submodule
-                Repository.Clone("https://github.com/Atmosphere-NX/ext-boost.git", boostsub.FullName);
+                if (checkBox1.Checked) Repository.Clone("https://github.com/Atmosphere-NX/ext-boost.git", boostsub.FullName);
 
                 gitbootlogo.Delete();
                 File.Copy(newbootlogo.FullName, gitbootlogo.FullName);
