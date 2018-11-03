@@ -13,6 +13,7 @@ namespace Atmosphere_Rebrander
         //ReiNX Source Code Leaked! /s
         static DirectoryInfo tempPath = new DirectoryInfo(Path.Combine(Path.GetTempPath(), "Atmosphere-Rebrander"));
         static DirectoryInfo atmosphereGit = new DirectoryInfo(Path.Combine(tempPath.FullName, "Atmosphere"));
+        static DirectoryInfo boostsub = new DirectoryInfo(Path.Combine(atmosphereGit.FullName, "common", "include", "boost"));
 
         public Form1()
         {
@@ -38,6 +39,9 @@ namespace Atmosphere_Rebrander
                 }
                  
                 Repository.Clone("https://github.com/Atmosphere-NX/Atmosphere.git", atmosphereGit.FullName);
+                //work around for submodule
+                Repository.Clone("https://github.com/Atmosphere-NX/ext-boost.git", boostsub.FullName);
+
                 System.Collections.Generic.IEnumerable<string> repo = Directory.EnumerateFiles(atmosphereGit.FullName, "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".cpp") || s.EndsWith(".h") || s.EndsWith(".c") || s.EndsWith(".hpp"));
                 FileInfo[] makefiles = atmosphereGit.GetFiles("Makefile", SearchOption.AllDirectories);
                 FileInfo readme = new FileInfo(Path.Combine(atmosphereGit.FullName, "README.md"));
