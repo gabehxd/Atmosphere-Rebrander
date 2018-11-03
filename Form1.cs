@@ -57,14 +57,13 @@ namespace Atmosphere_Rebrander
                 foreach (string file in repo)
                 {
                     string filetext = File.ReadAllText(file);
-                    if (filetext.Contains("AMS") || filetext.Contains("atmosphere") || filetext.Contains("Atmosphere") || filetext.Contains("ATMOSPHERE") || filetext.Contains("Atmosphère ") || filetext.Contains("Atmosphère ") || filetext.Contains("Atmosph\xe8re"))
+                    if (filetext.Contains("AMS") || filetext.Contains("atmosphere") || filetext.Contains("Atmosphere") || filetext.Contains("ATMOSPHERE") || filetext.Contains("Atmosphère ") || filetext.Contains("Atmosphère "))
                     {
                         filetext = filetext.Replace("atmosphere", lowerName);
                         filetext = filetext.Replace("Atmosphere", textBox1.Text);
                         filetext = filetext.Replace("ATMOSPHERE", upperName);
                         filetext = filetext.Replace("AMS", textBox2.Text);
                         filetext = filetext.Replace("Atmosphère ", $"{textBox1.Text} ");
-                        filetext = filetext.Replace("Atmosph\xe8re", textBox1.Text);
                         filetext += "\r\n//Modified by Atmosphere-Rebrander.";
                         File.WriteAllText(file, filetext);
                     }      
