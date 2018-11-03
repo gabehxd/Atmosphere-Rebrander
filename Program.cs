@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Make_Your_Own_CFW
+namespace Atmosphere_Rebrander
 {
     static class Program
     {
