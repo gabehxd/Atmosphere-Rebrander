@@ -52,12 +52,13 @@ namespace Atmosphere_Rebrander
                 foreach (string file in repo)
                 {
                     string filetext = File.ReadAllText(file);
-                    if (filetext.Contains("AMS") || filetext.Contains("atmosphere") || filetext.Contains("Atmosphere") || filetext.Contains("ATMOSPHERE"))
+                    if (filetext.Contains("AMS") || filetext.Contains("atmosphere") || filetext.Contains("Atmosphere") || filetext.Contains("ATMOSPHERE") || filetext.Contains("Atmosphère "))
                     {
                         filetext = filetext.Replace("atmosphere", lowerName);
                         filetext = filetext.Replace("Atmosphere", textBox1.Text);
                         filetext = filetext.Replace("ATMOSPHERE", upperName);
                         filetext = filetext.Replace("AMS", textBox2.Text);
+                        filetext = filetext.Replace("Atmosphère ", textBox1.Text);
                         filetext += "\r\n//Modified by Atmosphere-Rebrander.";
                         File.WriteAllText(file, filetext);
                     }      
@@ -69,12 +70,13 @@ namespace Atmosphere_Rebrander
                 foreach (FileInfo file in makefiles)
                 {
                     string filetext = File.ReadAllText(file.FullName);
-                    if (filetext.Contains("AMS") || filetext.Contains("atmosphere") || filetext.Contains("Atmosphere") || filetext.Contains("ATMOSPHERE"))
+                    if (filetext.Contains("AMS") || filetext.Contains("atmosphere") || filetext.Contains("Atmosphere") || filetext.Contains("ATMOSPHERE") || filetext.Contains("Atmosphère "))
                     {
                         filetext = filetext.Replace("atmosphere", lowerName);
                         filetext = filetext.Replace("Atmosphere", textBox1.Text);
                         filetext = filetext.Replace("ATMOSPHERE", upperName);
                         filetext = filetext.Replace("AMS", textBox2.Text);
+                        filetext = filetext.Replace("Atmosphère ", textBox1.Text);
                         File.WriteAllText(file.FullName, filetext);
                     }
                 }
