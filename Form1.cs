@@ -91,15 +91,12 @@ namespace Atmosphere_Rebrander
                 if (saveFileDialog1.FileName != "")
                 {
                     DirectoryInfo gitFolder = new DirectoryInfo(Path.Combine(atmosphereGit.FullName, ".git"));
-                    if (gitFolder.Exists)
+                    FileInfo[] Git = gitFolder.GetFiles("*.*", SearchOption.AllDirectories);
+                    foreach (FileInfo file in Git)
                     {
-                        FileInfo[] Git = gitFolder.GetFiles("*.*", SearchOption.AllDirectories);
-                        foreach (FileInfo file in Git)
-                        {
-                            File.SetAttributes(file.FullName, FileAttributes.Normal);
-                        }
-                        gitFolder.Delete(true);
+                      File.SetAttributes(file.FullName, FileAttributes.Normal);
                     }
+                    gitFolder.Delete(true);
                     ZipFile.CreateFromDirectory(atmosphereGit.FullName, saveFileDialog1.FileName);
                 }
                 MessageBox.Show("Done!");
