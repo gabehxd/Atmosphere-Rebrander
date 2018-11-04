@@ -12,6 +12,7 @@ namespace Atmosphere_Rebrander
     public partial class Form1 : Form
     {
         //ReiNX Source Code Leaked! /s
+        //create variables that can be used anywhere
         static DirectoryInfo TempPath => new DirectoryInfo(Path.Combine(Path.GetTempPath(), "Atmosphere-Rebrander"));
         static DirectoryInfo Baregit => new DirectoryInfo(Path.Combine(TempPath.FullName, "bare"));
         static DirectoryInfo AtmosphereGit => new DirectoryInfo(Path.Combine(TempPath.FullName, "Atmosphere"));
