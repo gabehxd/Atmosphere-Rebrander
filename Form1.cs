@@ -12,17 +12,42 @@ namespace Atmosphere_Rebrander
     public partial class Form1 : Form
     {
         //ReiNX Source Code Leaked! /s
-        static DirectoryInfo tempPath = new DirectoryInfo(Path.Combine(Path.GetTempPath(), "Atmosphere-Rebrander"));
-        static DirectoryInfo atmosphereGit = new DirectoryInfo(Path.Combine(tempPath.FullName, "Atmosphere"));
-        static DirectoryInfo boostsub = new DirectoryInfo(Path.Combine(atmosphereGit.FullName, "common", "include", "boost"));
-        static FileInfo gitbootlogo = new FileInfo(Path.Combine(atmosphereGit.FullName, "fusee", "fusee-secondary", "src", "splash_screen.bmp"));
-        static FileInfo readme = new FileInfo(Path.Combine(atmosphereGit.FullName, "README.md"));
-        static FileInfo[] makefiles = atmosphereGit.GetFiles("Makefile", SearchOption.AllDirectories);
+        static DirectoryInfo TempPath => new DirectoryInfo(Path.Combine(Path.GetTempPath(), "Atmosphere-Rebrander"));
+        static DirectoryInfo Baregit => new DirectoryInfo(Path.Combine(TempPath.FullName, "bare"));
+        static DirectoryInfo AtmosphereGit => new DirectoryInfo(Path.Combine(TempPath.FullName, "Atmosphere"));
+        static DirectoryInfo Boostsub => new DirectoryInfo(Path.Combine(AtmosphereGit.FullName, "common", "include", "boost"));
+        static FileInfo Gitbootlogo => new FileInfo(Path.Combine(AtmosphereGit.FullName, "fusee", "fusee-secondary", "src", "splash_screen.bmp"));
+        static FileInfo Readme => new FileInfo(Path.Combine(AtmosphereGit.FullName, "README.md"));
+        static FileInfo[] Makefiles => AtmosphereGit.GetFiles("Makefile", SearchOption.AllDirectories);
         public FileInfo newbootlogo;
 
         public Form1()
         {
             InitializeComponent();
+
+            TempPath.Create();
+
+            if (Baregit.Exists)
+            {
+                FileInfo[] files = Baregit.GetFiles("*.*", SearchOption.AllDirectories);
+                foreach (FileInfo file in files)
+                {
+                    File.SetAttributes(file.FullName, FileAttributes.Normal);
+                }
+                Baregit.Delete(true);
+            }
+
+            CloneOptions init = new CloneOptions
+            {
+                IsBare = true
+            };
+            Repository.Clone("https://github.com/Atmosphere-NX/Atmosphere.git", Baregit.FullName, init);
+            Repository repo = new Repository(Baregit.FullName);
+            foreach (Branch b in repo.Branches.Where(b => b.IsRemote))
+            {
+                string item = b.ToString().Replace("refs/remotes/origin/", "");
+                comboBox1.Items.Add(item);
+            }
         }
 
         private void Button1_Click(object sender, EventArgs e)
@@ -30,27 +55,31 @@ namespace Atmosphere_Rebrander
             if (!string.IsNullOrWhiteSpace(textBox1.Text) && !string.IsNullOrWhiteSpace(textBox2.Text) && newbootlogo != null)
             { 
             cte_button.Enabled = false;
-            tempPath.Create();
 
                 //work around for readonly file(s) in .git
-                if (atmosphereGit.Exists)
+                if (AtmosphereGit.Exists)
                 {
-                    FileInfo[] Git = atmosphereGit.GetFiles("*.*", SearchOption.AllDirectories);
+                    FileInfo[] Git = AtmosphereGit.GetFiles("*.*", SearchOption.AllDirectories);
                     foreach (FileInfo file in Git)
                     {
                         File.SetAttributes(file.FullName, FileAttributes.Normal);
                     }
-                    atmosphereGit.Delete(true);
+                    AtmosphereGit.Delete(true);
                 }
-                 
-                Repository.Clone("https://github.com/Atmosphere-NX/Atmosphere.git", atmosphereGit.FullName);
-                //work around for submodule
-                if (checkBox1.Checked) Repository.Clone("https://github.com/Atmosphere-NX/ext-boost.git", boostsub.FullName);
 
-                gitbootlogo.Delete();
-                File.Copy(newbootlogo.FullName, gitbootlogo.FullName);
+                CloneOptions options = new CloneOptions
+                {
+                    BranchName = comboBox1.SelectedItem.ToString()
+                };
+                if (checkBox1.Checked) options.RecurseSubmodules = true;
+                
 
-                IEnumerable<string> repo = Directory.EnumerateFiles(atmosphereGit.FullName, "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".cpp") || s.EndsWith(".h") || s.EndsWith(".c") || s.EndsWith(".hpp"));
+                Repository.Clone("https://github.com/Atmosphere-NX/Atmosphere.git", AtmosphereGit.FullName, options);
+
+                Gitbootlogo.Delete();
+                File.Copy(newbootlogo.FullName, Gitbootlogo.FullName);
+
+                IEnumerable<string> repo = Directory.EnumerateFiles(AtmosphereGit.FullName, "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".cpp") || s.EndsWith(".h") || s.EndsWith(".c") || s.EndsWith(".hpp"));
 
                 List<string> strings = repo.ToList();
                 foreach (string str in strings.ToList())
@@ -76,11 +105,11 @@ namespace Atmosphere_Rebrander
                         File.WriteAllText(file, filetext);
                     }      
                 }
-                string readmetext = File.ReadAllText(readme.FullName);
+                string readmetext = File.ReadAllText(Readme.FullName);
                 readmetext += "<br>\r\nGit modified by [Atmosphere-Rebrander](https://github.com/SunTheCourier/Atmosphere-Rebrander).";
-                File.WriteAllText(readme.FullName, readmetext);
+                File.WriteAllText(Readme.FullName, readmetext);
 
-                foreach (FileInfo file in makefiles)
+                foreach (FileInfo file in Makefiles)
                 {
                     string filetext = File.ReadAllText(file.FullName);
                     if (filetext.Contains("AMS") || filetext.Contains("atmosphere") || filetext.Contains("Atmosphere") || filetext.Contains("ATMOSPHERE"))
@@ -93,7 +122,7 @@ namespace Atmosphere_Rebrander
                     }
                 }
 
-                DirectoryInfo[] repoFolders = atmosphereGit.GetDirectories("atmosphere", SearchOption.AllDirectories);
+                DirectoryInfo[] repoFolders = AtmosphereGit.GetDirectories("atmosphere", SearchOption.AllDirectories);
                 foreach (DirectoryInfo folder in repoFolders)
                 {
                     string atmosfolder = folder.FullName;
@@ -105,7 +134,7 @@ namespace Atmosphere_Rebrander
                 if (saveFileDialog1.FileName != "")
                 {
                     FileInfo save = new FileInfo(saveFileDialog1.FileName);
-                    DirectoryInfo gitFolder = new DirectoryInfo(Path.Combine(atmosphereGit.FullName, ".git"));
+                    DirectoryInfo gitFolder = new DirectoryInfo(Path.Combine(AtmosphereGit.FullName, ".git"));
                     FileInfo[] Git = gitFolder.GetFiles("*.*", SearchOption.AllDirectories);
                     foreach (FileInfo file in Git)
                     {
@@ -113,7 +142,7 @@ namespace Atmosphere_Rebrander
                     }
                     gitFolder.Delete(true);
                     if (save.Exists) save.Delete();
-                    ZipFile.CreateFromDirectory(atmosphereGit.FullName, save.FullName);
+                    ZipFile.CreateFromDirectory(AtmosphereGit.FullName, save.FullName);
                 }
                 MessageBox.Show("Done!");
                 cte_button.Enabled = true;
