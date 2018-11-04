@@ -121,10 +121,6 @@ namespace Atmosphere_Rebrander
                         File.WriteAllText(file, filetext);
                     }      
                 }
-                //readme replace strings
-                string readmetext = File.ReadAllText(Readme.FullName);
-                readmetext += "\r\nGit modified by [Atmosphere-Rebrander](https://github.com/SunTheCourier/Atmosphere-Rebrander).";
-                File.WriteAllText(Readme.FullName, readmetext);
 
                 //makefile replace strings
                 foreach (FileInfo file in Makefiles)
@@ -136,9 +132,27 @@ namespace Atmosphere_Rebrander
                         filetext = filetext.Replace("Atmosphere", textBox1.Text);
                         filetext = filetext.Replace("ATMOSPHERE", upperName);
                         filetext = filetext.Replace("AMS", textBox2.Text);
+                        filetext += "\r\n#Modified by Atmosphere-Rebrander.";
                         File.WriteAllText(file.FullName, filetext);
                     }
                 }
+
+                //ini replace strings
+                foreach (FileInfo file in ini)
+                {
+                    string filetext = File.ReadAllText(file.FullName);
+                    if (filetext.Contains("atmosphere"))
+                    {
+                        filetext = filetext.Replace("atmosphere", lowerName);
+                        filetext += "\r\n#Modified by Atmosphere-Rebrander.";
+                        File.WriteAllText(file.FullName, filetext);
+                    }
+                }
+
+                //readme replace strings
+                string readmetext = File.ReadAllText(Readme.FullName);
+                readmetext += "\r\nGit modified by [Atmosphere-Rebrander](https://github.com/SunTheCourier/Atmosphere-Rebrander).";
+                File.WriteAllText(Readme.FullName, readmetext);
 
                 //rename folders
                 DirectoryInfo[] repoFolders = AtmosphereGit.GetDirectories("atmosphere", SearchOption.AllDirectories);
