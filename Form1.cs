@@ -27,6 +27,7 @@ namespace Atmosphere_Rebrander
 
             TempPath.Create();
 
+            //remove .git file if they exist
             if (Baregit.Exists)
             {
                 FileInfo[] files = Baregit.GetFiles("*.*", SearchOption.AllDirectories);
@@ -37,14 +38,17 @@ namespace Atmosphere_Rebrander
                 Baregit.Delete(true);
             }
 
+            //only grab .git to get all branches
             CloneOptions init = new CloneOptions
             {
                 IsBare = true
             };
             Repository.Clone("https://github.com/Atmosphere-NX/Atmosphere.git", Baregit.FullName, init);
             Repository repo = new Repository(Baregit.FullName);
+            //grab all branches for .git folder
             foreach (Branch b in repo.Branches.Where(b => b.IsRemote))
             {
+                //remove unnessary part of string
                 string item = b.ToString().Replace("refs/remotes/origin/", "");
                 comboBox1.Items.Add(item);
             }
@@ -52,44 +56,55 @@ namespace Atmosphere_Rebrander
 
         private void Button1_Click(object sender, EventArgs e)
         {
+            //make sure all params are filled in
             if (!string.IsNullOrWhiteSpace(textBox1.Text) && !string.IsNullOrWhiteSpace(textBox2.Text) && newbootlogo != null && comboBox1.SelectedItem != null)
             { 
-            cte_button.Enabled = false;
+                //disable create box while working
+                cte_button.Enabled = false;
 
                 //work around for readonly file(s) in .git
+                //check if full Atmosphere git exists
                 if (AtmosphereGit.Exists)
                 {
+                    //make an array of all files within it
                     FileInfo[] Git = AtmosphereGit.GetFiles("*.*", SearchOption.AllDirectories);
                     foreach (FileInfo file in Git)
                     {
+                        //make them modifiable 
                         File.SetAttributes(file.FullName, FileAttributes.Normal);
                     }
                     AtmosphereGit.Delete(true);
                 }
 
+                //take the branch to clone from combobox
                 CloneOptions options = new CloneOptions
                 {
                     BranchName = comboBox1.SelectedItem.ToString()
                 };
+                //check if the user want submodules
                 if (checkBox1.Checked) options.RecurseSubmodules = true;
-                
-
                 Repository.Clone("https://github.com/Atmosphere-NX/Atmosphere.git", AtmosphereGit.FullName, options);
 
+                //boot logo replacement
                 Gitbootlogo.Delete();
                 File.Copy(newbootlogo.FullName, Gitbootlogo.FullName);
 
-                IEnumerable<string> repo = Directory.EnumerateFiles(AtmosphereGit.FullName, "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".cpp") || s.EndsWith(".h") || s.EndsWith(".c") || s.EndsWith(".hpp") || s.EndsWith(".ini"));
+                //grab files in the repo
+                IEnumerable<string> repo = Directory.EnumerateFiles(AtmosphereGit.FullName, "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".cpp") || s.EndsWith(".h") || s.EndsWith(".c") || s.EndsWith(".hpp"));
+                FileInfo[] ini = AtmosphereGit.GetFiles("*.ini", SearchOption.AllDirectories);
 
+                //remove lz4 as it contains "STREAMS"
                 List<string> strings = repo.ToList();
                 foreach (string str in strings.ToList())
                 {
                     if (str.Contains("lz4")) strings.Remove(str);
                 }
 
+                //change strings for certain replacements
                 string lowerName = CultureInfo.CurrentCulture.TextInfo.ToLower(textBox1.Text);
                 string upperName = CultureInfo.CurrentCulture.TextInfo.ToUpper(textBox1.Text);
 
+                //actually replace strings
                 foreach (string file in strings)
                 {
                     string filetext = File.ReadAllText(file);
@@ -105,10 +120,12 @@ namespace Atmosphere_Rebrander
                         File.WriteAllText(file, filetext);
                     }      
                 }
+                //readme replace strings
                 string readmetext = File.ReadAllText(Readme.FullName);
                 readmetext += "\r\nGit modified by [Atmosphere-Rebrander](https://github.com/SunTheCourier/Atmosphere-Rebrander).";
                 File.WriteAllText(Readme.FullName, readmetext);
 
+                //makefile replace strings
                 foreach (FileInfo file in Makefiles)
                 {
                     string filetext = File.ReadAllText(file.FullName);
@@ -122,6 +139,7 @@ namespace Atmosphere_Rebrander
                     }
                 }
 
+                //rename folders
                 DirectoryInfo[] repoFolders = AtmosphereGit.GetDirectories("atmosphere", SearchOption.AllDirectories);
                 foreach (DirectoryInfo folder in repoFolders)
                 {
@@ -130,6 +148,7 @@ namespace Atmosphere_Rebrander
                     folder.MoveTo(atmosfolder);
                 }
 
+                //remove .git folder prompt for save location and then zip
                 saveFileDialog1.ShowDialog();
                 if (saveFileDialog1.FileName != "")
                 {
@@ -143,8 +162,14 @@ namespace Atmosphere_Rebrander
                     gitFolder.Delete(true);
                     if (save.Exists) save.Delete();
                     ZipFile.CreateFromDirectory(AtmosphereGit.FullName, save.FullName);
+                    saveFileDialog1.FileName = "";
+                    MessageBox.Show("Done!");
                 }
-                MessageBox.Show("Done!");
+                else
+                {
+                    MessageBox.Show("Canceled!");
+                }
+                //reenable create button (we are done)
                 cte_button.Enabled = true;
             }
             else
@@ -155,8 +180,10 @@ namespace Atmosphere_Rebrander
 
         private void Button1_Click_1(object sender, EventArgs e)
         {
+            //prompt user to select BMP file
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
+                //put the boot logo selected into newbootlogo variable
                 newbootlogo = new FileInfo(openFileDialog1.FileName);
                 button1.Text = "Selected";
             }
