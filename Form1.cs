@@ -52,7 +52,7 @@ namespace Atmosphere_Rebrander
 
         private void Button1_Click(object sender, EventArgs e)
         {
-            if (!string.IsNullOrWhiteSpace(textBox1.Text) && !string.IsNullOrWhiteSpace(textBox2.Text) && newbootlogo != null)
+            if (!string.IsNullOrWhiteSpace(textBox1.Text) && !string.IsNullOrWhiteSpace(textBox2.Text) && newbootlogo != null && comboBox1.SelectedItem != null)
             { 
             cte_button.Enabled = false;
 
