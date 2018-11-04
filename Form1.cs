@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
@@ -15,6 +16,8 @@ namespace Atmosphere_Rebrander
         static DirectoryInfo atmosphereGit = new DirectoryInfo(Path.Combine(tempPath.FullName, "Atmosphere"));
         static DirectoryInfo boostsub = new DirectoryInfo(Path.Combine(atmosphereGit.FullName, "common", "include", "boost"));
         static FileInfo gitbootlogo = new FileInfo(Path.Combine(atmosphereGit.FullName, "fusee", "fusee-secondary", "src", "splash_screen.bmp"));
+        static FileInfo readme = new FileInfo(Path.Combine(atmosphereGit.FullName, "README.md"));
+        static FileInfo[] makefiles = atmosphereGit.GetFiles("Makefile", SearchOption.AllDirectories);
         public FileInfo newbootlogo;
 
         public Form1()
@@ -47,14 +50,18 @@ namespace Atmosphere_Rebrander
                 gitbootlogo.Delete();
                 File.Copy(newbootlogo.FullName, gitbootlogo.FullName);
 
-                System.Collections.Generic.IEnumerable<string> repo = Directory.EnumerateFiles(atmosphereGit.FullName, "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".cpp") || s.EndsWith(".h") || s.EndsWith(".c") || s.EndsWith(".hpp"));
-                FileInfo[] makefiles = atmosphereGit.GetFiles("Makefile", SearchOption.AllDirectories);
-                FileInfo readme = new FileInfo(Path.Combine(atmosphereGit.FullName, "README.md"));
+                IEnumerable<string> repo = Directory.EnumerateFiles(atmosphereGit.FullName, "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".cpp") || s.EndsWith(".h") || s.EndsWith(".c") || s.EndsWith(".hpp"));
+
+                List<string> strings = repo.ToList();
+                foreach (string str in strings.ToList())
+                {
+                    if (str.Contains("lz4")) strings.Remove(str);
+                }
 
                 string lowerName = CultureInfo.CurrentCulture.TextInfo.ToLower(textBox1.Text);
                 string upperName = CultureInfo.CurrentCulture.TextInfo.ToUpper(textBox1.Text);
 
-                foreach (string file in repo)
+                foreach (string file in strings)
                 {
                     string filetext = File.ReadAllText(file);
                     if (filetext.Contains("AMS") || filetext.Contains("atmosphere") || filetext.Contains("Atmosphere") || filetext.Contains("ATMOSPHERE") || filetext.Contains("Atmosphère ") || filetext.Contains("Atmosphère ") || filetext.Contains("Atmosph\\xe8re"))
@@ -70,7 +77,7 @@ namespace Atmosphere_Rebrander
                     }      
                 }
                 string readmetext = File.ReadAllText(readme.FullName);
-                readmetext += "<br>\r\nModified by Atmosphere-Rebrander.";
+                readmetext += "<br>\r\nGit modified by [Atmosphere-Rebrander](https://github.com/SunTheCourier/Atmosphere-Rebrander).";
                 File.WriteAllText(readme.FullName, readmetext);
 
                 foreach (FileInfo file in makefiles)
@@ -125,6 +132,5 @@ namespace Atmosphere_Rebrander
                 button1.Text = "Selected";
             }
         }
-        
     }
 }
