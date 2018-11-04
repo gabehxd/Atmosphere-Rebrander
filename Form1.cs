@@ -79,7 +79,7 @@ namespace Atmosphere_Rebrander
                 Gitbootlogo.Delete();
                 File.Copy(newbootlogo.FullName, Gitbootlogo.FullName);
 
-                IEnumerable<string> repo = Directory.EnumerateFiles(AtmosphereGit.FullName, "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".cpp") || s.EndsWith(".h") || s.EndsWith(".c") || s.EndsWith(".hpp"));
+                IEnumerable<string> repo = Directory.EnumerateFiles(AtmosphereGit.FullName, "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".cpp") || s.EndsWith(".h") || s.EndsWith(".c") || s.EndsWith(".hpp") || s.EndsWith(".ini"));
 
                 List<string> strings = repo.ToList();
                 foreach (string str in strings.ToList())
@@ -106,7 +106,7 @@ namespace Atmosphere_Rebrander
                     }      
                 }
                 string readmetext = File.ReadAllText(Readme.FullName);
-                readmetext += "<br>\r\nGit modified by [Atmosphere-Rebrander](https://github.com/SunTheCourier/Atmosphere-Rebrander).";
+                readmetext += "\r\nGit modified by [Atmosphere-Rebrander](https://github.com/SunTheCourier/Atmosphere-Rebrander).";
                 File.WriteAllText(Readme.FullName, readmetext);
 
                 foreach (FileInfo file in Makefiles)
