@@ -59,7 +59,7 @@ namespace Atmosphere_Rebrander
         {
             //make sure all params are filled in
             if (!string.IsNullOrWhiteSpace(textBox1.Text) && !string.IsNullOrWhiteSpace(textBox2.Text) && newbootlogo != null && comboBox1.SelectedItem != null)
-            { 
+            {
                 //disable create box while working
                 cte_button.Enabled = false;
 
@@ -119,7 +119,7 @@ namespace Atmosphere_Rebrander
                         filetext = filetext.Replace("Atmosph\\xe8re", textBox1.Text);
                         filetext += "\r\n//Modified by Atmosphere-Rebrander.";
                         File.WriteAllText(file, filetext);
-                    }      
+                    }
                 }
 
                 //makefile replace strings
@@ -172,7 +172,7 @@ namespace Atmosphere_Rebrander
                     FileInfo[] Git = gitFolder.GetFiles("*.*", SearchOption.AllDirectories);
                     foreach (FileInfo file in Git)
                     {
-                      File.SetAttributes(file.FullName, FileAttributes.Normal);
+                        File.SetAttributes(file.FullName, FileAttributes.Normal);
                     }
                     gitFolder.Delete(true);
                     if (save.Exists) save.Delete();
